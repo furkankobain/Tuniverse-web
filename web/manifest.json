@@ -1,0 +1,35 @@
+{
+    "name": "Tuniverse - Your Social Music Network",
+    "short_name": "Tuniverse",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#1a1a1a",
+    "theme_color": "#FF5E5E",
+    "description": "Discover, share, and connect through music. Rate tracks, create playlists, and explore new music with friends.",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ]
+}

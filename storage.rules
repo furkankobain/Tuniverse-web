@@ -1,0 +1,32 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ===== PLAYLIST COVERS =====
+    match /playlists/{userId}/{playlistId}/{fileName} {
+      // Herkes okuyabilir
+      allow read: if true;
+      
+      // Sadece kendi playlist'ine yükleyebilir
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // ===== MESSAGE IMAGES =====
+    match /messages/{conversationId}/{fileName} {
+      // Giriş yapmış herkes okuyabilir
+      allow read: if request.auth != null;
+      
+      // Giriş yapmış herkes yükleyebilir
+      allow write: if request.auth != null;
+    }
+    
+    // ===== USER PROFILE PICTURES =====
+    match /users/{userId}/{fileName} {
+      // Herkes okuyabilir
+      allow read: if true;
+      
+      // Sadece kendi profil resmini yükleyebilir
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

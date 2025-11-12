@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tuniverse Gizlilik Politikası</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #111; padding: 24px; max-width: 900px; margin: auto; }
+    h1, h2 { color: #D81B60; }
+    .muted { color: #666; }
+    .card { border: 1px solid #eee; border-radius: 12px; padding: 20px; background: #fafafa; }
+    ul { margin: 0 0 1rem 1.25rem; }
+  </style>
+</head>
+<body>
+  <h1>Tuniverse Gizlilik Politikası</h1>
+  <p class="muted">Son güncelleme: <span id="date"></span></p>
+
+  <div class="card">
+    <p>Tuniverse, kullanıcıların müzik deneyimlerini keşfetmelerine ve paylaşmalarına yardımcı olan bir sosyal müzik platformudur. Bu gizlilik politikası, Tuniverse uygulamasını kullanırken kişisel verilerinizin nasıl toplandığını, kullanıldığını ve korunduğunu açıklar.</p>
+  </div>
+
+  <h2>1. Toplanan Veriler</h2>
+  <ul>
+    <li>Hesap bilgileri (e-posta, kullanıcı adı, ad)</li>
+    <li>Profil bilgileri (fotoğraf, bio)</li>
+    <li>Kullanıcı içerikleri (yorumlar, listeler, mesajlar)</li>
+    <li>Kullanım verileri (etkileşimler, sayfa görüntülemeleri)</li>
+    <li>Cihaz ve tanımlayıcılar (reklam kimliği, cihaz bilgisi)</li>
+  </ul>
+
+  <h2>2. Veri Kullanım Amaçları</h2>
+  <ul>
+    <li>Hesap oluşturma ve kimlik doğrulama</li>
+    <li>Uygulama işlevselliğinin sağlanması</li>
+    <li>Kişiselleştirilmiş öneriler ve keşif</li>
+    <li>Analitik ve performans takibi</li>
+    <li>Güvenlik ve kötüye kullanımın önlenmesi</li>
+  </ul>
+
+  <h2>3. Entegrasyonlar</h2>
+  <p>Uygulama; Firebase (Auth, Firestore, Storage, Analytics, Crashlytics), FCM ve Google AdMob gibi hizmetleri kullanır. Bu hizmetler, geliştirici adına veri işleyebilir.</p>
+
+  <h2>4. Veri Paylaşımı</h2>
+  <ul>
+    <li>Kişisel verileriniz üçüncü taraflarla <strong>satılmaz</strong>.</li>
+    <li>Analitik ve çökme raporları Google Firebase hizmetleriyle işlenebilir.</li>
+    <li>Reklam gösterimleri için Google AdMob, reklam kimliği ve yaklaşık konum bilgilerini işleyebilir.</li>
+    <li>Yasal zorunluluklar halinde ilgili makamlara paylaşım yapılabilir.</li>
+  </ul>
+
+  <h2>5. Veri Güvenliği</h2>
+  <ul>
+    <li>Veri aktarımı TLS ile şifrelenir.</li>
+    <li>Yetkisiz erişime karşı erişim kontrolleri uygulanır.</li>
+    <li>Düzenli güvenlik güncellemeleri yapılır.</li>
+  </ul>
+
+  <h2>6. Kullanıcı Hakları</h2>
+  <ul>
+    <li>Verilerinize erişim, düzeltme ve silme talebi</li>
+    <li>İşlemeyi kısıtlama ve itiraz hakkı</li>
+    <li>Hesabınızı silme talebi</li>
+  </ul>
+
+  <h2>7. Çocukların Gizliliği</h2>
+  <p>Uygulama 13 yaşın altındaki çocukları hedeflemez. Böyle bir durum tespit edilirse ilgili veriler silinir.</p>
+
+  <h2>8. İletişim</h2>
+  <p>Sorularınız için: <a href="mailto:support@tuniverse.app">support@tuniverse.app</a></p>
+
+  <script>
+    const d = new Date();
+    document.getElementById('date').textContent = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+  </script>
+</body>
+</html>

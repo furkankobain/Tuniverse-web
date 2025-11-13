@@ -71,62 +71,99 @@ class _SpotifyCallbackPageState extends State<SpotifyCallbackPage> {
       if (success) {
         setState(() { _statusMessage = 'Fetching profile...'; });
         final profile = await EnhancedSpotifyService.fetchUserProfile();
+        
+        final email = profile?['email'] as String?;
+        final displayName = (profile?['display_name'] as String?)?.trim();
+        final images = (profile?['images'] as List?) ?? [];
+        final photoURL = images.isNotEmpty ? (images.first['url'] as String?) : null;
+        final spotifyId = profile?['id'] as String?;
 
-        // Ensure Firebase user exists (anonymous if needed)
-        User? user = FirebaseAuth.instance.currentUser;
-        if (user == null) {
-          setState(() { _statusMessage = 'Creating account...'; });
-          final cred = await FirebaseAuth.instance.signInAnonymously();
-          user = cred.user;
+        // Check if user already exists (already logged in)
+        User? currentUser = FirebaseAuth.instance.currentUser;
+        
+        if (currentUser != null) {
+          // User is logged in, just update Spotify connection
+          setState(() { _statusMessage = 'Updating Spotify connection...'; });
+          await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).update({
+            'spotifyConnected': true,
+            'spotifyId': spotifyId,
+            'photoURL': photoURL ?? currentUser.photoURL,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+          
+          setState(() { _statusMessage = 'Syncing Spotify data...'; });
+          await SpotifySyncService.fullSync();
+          
+          setState(() { _isProcessing = false; _statusMessage = 'Connected successfully!'; });
+          await Future.delayed(const Duration(seconds: 1));
+          if (mounted) { context.go('/'); }
+          return;
         }
 
-        // Create/Update user document with Spotify info
-        if (user != null) {
-          final users = FirebaseFirestore.instance.collection('users').doc(user.uid);
-          final snap = await users.get();
-          final displayName = (profile?['display_name'] as String?)?.trim();
-          final images = (profile?['images'] as List?) ?? [];
-          final photoURL = images.isNotEmpty ? (images.first['url'] as String?) : null;
-
-          // Generate a username from display_name if missing
-          String username = (displayName ?? 'user').toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
-          if (username.isEmpty) username = 'user';
-          if (!snap.exists) {
-            // Ensure uniqueness
-            final q = await FirebaseFirestore.instance.collection('users')
-              .where('username', isEqualTo: username).limit(1).get();
-            if (q.docs.isNotEmpty) {
-              username = '${username}_${DateTime.now().millisecondsSinceEpoch % 10000}';
+        // No user logged in - check if email exists in database
+        if (email != null) {
+          setState(() { _statusMessage = 'Checking existing account...'; });
+          final usersQuery = await FirebaseFirestore.instance
+              .collection('users')
+              .where('email', isEqualTo: email)
+              .limit(1)
+              .get();
+          
+          if (usersQuery.docs.isNotEmpty) {
+            // User exists but not logged in - redirect to login
+            if (mounted) {
+              EnhancedSnackbar.show(
+                context,
+                message: 'Account exists with this email. Please login.',
+                type: SnackbarType.info,
+              );
+              context.go('/login');
             }
-            await users.set({
-              'uid': user.uid,
-              'email': null,
-              'username': username,
-              'displayName': displayName ?? 'Tuniverse User',
-              'photoURL': photoURL,
-              'profileImageUrl': photoURL, // Also save as profileImageUrl for consistency
-              'createdAt': FieldValue.serverTimestamp(),
-              'provider': 'spotify',
-              'isActive': true,
-              'onboardingCompleted': false, // New Spotify users need onboarding
-            });
-          } else {
-            await users.update({
-              'displayName': displayName ?? snap.data()?['displayName'] ?? 'User',
-              'photoURL': photoURL ?? snap.data()?['photoURL'],
-              'profileImageUrl': photoURL ?? snap.data()?['profileImageUrl'] ?? snap.data()?['photoURL'], // Sync both fields
-              'provider': 'spotify',
-              'updatedAt': FieldValue.serverTimestamp(),
-            });
+            return;
           }
         }
 
-        setState(() { _statusMessage = 'Syncing Spotify data...'; });
-        await SpotifySyncService.fullSync();
-
-        setState(() { _isProcessing = false; _statusMessage = 'Connected successfully!'; });
-        await Future.delayed(const Duration(seconds: 1));
-        if (mounted) { context.go('/'); }
+        // New user - create account with Spotify
+        setState(() { _statusMessage = 'Creating account...'; });
+        
+        // Create anonymous Firebase account
+        final cred = await FirebaseAuth.instance.signInAnonymously();
+        final user = cred.user;
+        
+        if (user != null) {
+          // Generate username
+          String username = (displayName ?? 'user').toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+          if (username.isEmpty) username = 'user';
+          
+          // Check uniqueness
+          final q = await FirebaseFirestore.instance.collection('users')
+            .where('username', isEqualTo: username).limit(1).get();
+          if (q.docs.isNotEmpty) {
+            username = '${username}_${DateTime.now().millisecondsSinceEpoch % 10000}';
+          }
+          
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+            'uid': user.uid,
+            'email': email,
+            'username': username,
+            'displayName': displayName ?? 'Tuniverse User',
+            'photoURL': photoURL,
+            'profileImageUrl': photoURL,
+            'createdAt': FieldValue.serverTimestamp(),
+            'provider': 'spotify',
+            'spotifyConnected': true,
+            'spotifyId': spotifyId,
+            'isActive': true,
+            'onboardingCompleted': false,
+          });
+          
+          setState(() { _statusMessage = 'Syncing Spotify data...'; });
+          await SpotifySyncService.fullSync();
+          
+          setState(() { _isProcessing = false; _statusMessage = 'Connected successfully!'; });
+          await Future.delayed(const Duration(seconds: 1));
+          if (mounted) { context.go('/'); }
+        }
       } else {
         setState(() {
           _isProcessing = false;

@@ -7,6 +7,7 @@ class AppConstants {
   static const String spotifyClientId = 'fa707acb3b8942009549def708444b94';
   static const String spotifyClientSecret = 'efecce9e795d4b3a85e413a3749df9d0';
   static const String spotifyRedirectUri = 'tuniverse://callback';
+  static const String spotifyRedirectUriWeb = 'https://tuniverseapp.online/spotify-callback';
   static const List<String> spotifyScopes = [
     'user-read-recently-played',
     'user-top-read',

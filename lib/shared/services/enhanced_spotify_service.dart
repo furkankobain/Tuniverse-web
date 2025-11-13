@@ -66,6 +66,11 @@ class EnhancedSpotifyService {
       final codeChallenge = _generateCodeChallenge(_codeVerifier!);
       _state = _generateRandomString(16);
       
+      // Save state and verifier to SharedPreferences for web
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('spotify_state', _state!);
+      await prefs.setString('spotify_code_verifier', _codeVerifier!);
+      
       final authUrl = _buildAuthUrlWithPKCE(codeChallenge);
       final uri = Uri.parse(authUrl);
 
@@ -108,9 +113,16 @@ class EnhancedSpotifyService {
   /// Handle OAuth callback with authorization code
   static Future<bool> handleAuthCallback(String code, String state) async {
     try {
+      // Load state and verifier from SharedPreferences if needed
+      if (_state == null || _codeVerifier == null) {
+        final prefs = await SharedPreferences.getInstance();
+        _state = prefs.getString('spotify_state');
+        _codeVerifier = prefs.getString('spotify_code_verifier');
+      }
+      
       // Verify state to prevent CSRF attacks
       if (state != _state) {
-        print('State mismatch error');
+        print('State mismatch error: expected $_state, got $state');
         return false;
       }
       

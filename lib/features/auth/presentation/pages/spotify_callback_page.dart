@@ -38,18 +38,22 @@ class _SpotifyCallbackPageState extends State<SpotifyCallbackPage> {
 
   Future<void> _handleCallback() async {
     try {
+      print('🎵 Spotify Callback - Code: ${widget.code}, State: ${widget.state}, Error: ${widget.error}');
+      
       // Check for errors from Spotify
       if (widget.error != null) {
+        print('❌ Spotify error: ${widget.error}');
         setState(() {
           _isProcessing = false;
           _hasError = true;
-          _statusMessage = 'Spotify authorization cancelled';
+          _statusMessage = 'Spotify authorization cancelled: ${widget.error}';
         });
         return;
       }
 
       // Check if we have the authorization code
       if (widget.code == null || widget.state == null) {
+        print('❌ Missing code or state');
         setState(() {
           _isProcessing = false;
           _hasError = true;
@@ -62,15 +66,19 @@ class _SpotifyCallbackPageState extends State<SpotifyCallbackPage> {
         _statusMessage = 'Exchanging token...';
       });
 
+      print('🔄 Exchanging token...');
       // Exchange authorization code for access token
       final success = await EnhancedSpotifyService.handleAuthCallback(
         widget.code!,
         widget.state!,
       );
+      print('Token exchange result: $success');
 
       if (success) {
+        print('✅ Token exchanged successfully');
         setState(() { _statusMessage = 'Fetching profile...'; });
         final profile = await EnhancedSpotifyService.fetchUserProfile();
+        print('Profile: $profile');
         
         final email = profile?['email'] as String?;
         final displayName = (profile?['display_name'] as String?)?.trim();
@@ -165,13 +173,16 @@ class _SpotifyCallbackPageState extends State<SpotifyCallbackPage> {
           if (mounted) { context.go('/'); }
         }
       } else {
+        print('❌ Token exchange failed');
         setState(() {
           _isProcessing = false;
           _hasError = true;
           _statusMessage = 'Failed to connect to Spotify';
         });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ Callback error: $e');
+      print('Stack trace: $stackTrace');
       setState(() {
         _isProcessing = false;
         _hasError = true;
